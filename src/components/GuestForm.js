@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 /*
-Form supports multi-day credits input (days prop).
-Each guest stores:
+Guest structure:
 {
-  id, cn (optional), guestName, co, group,
-  days: [{dateLabel, credit}], total, '2/4-N', '3/6-Z', timePlayed
+  id, cn, guestName, co, group,
+  days: [{date, credit}], total, '2/4-N', '3/6-Z', timePlayed, TA, table
 }
 */
 
-export default function GuestForm({ onAdd, days, setDays }) {
+export default function GuestForm({ onAdd, days, setDays, activeTable }) {
   const [guestName, setGuestName] = useState("");
+  const [cn, setCn] = useState("");
   const [co, setCo] = useState("");
   const [group, setGroup] = useState("");
   const [timePlayed, setTimePlayed] = useState("");
   const [credits, setCredits] = useState(days.map(() => 0));
   const [twofour, setTwofour] = useState(0);
   const [threeSix, setThreeSix] = useState(0);
+  const [TA, setTA] = useState(0);
 
-  // If day labels change, update credits array length
-  React.useEffect(() => {
+  useEffect(() => {
     setCredits((c) => {
       const copy = [...c];
       while (copy.length < days.length) copy.push(0);
@@ -34,6 +34,7 @@ export default function GuestForm({ onAdd, days, setDays }) {
     e.preventDefault();
     if (!guestName.trim()) return alert("Enter guest name");
     const guest = {
+      cn,
       guestName,
       co,
       group,
@@ -42,21 +43,25 @@ export default function GuestForm({ onAdd, days, setDays }) {
       "2/4-N": Number(twofour || 0),
       "3/6-Z": Number(threeSix || 0),
       timePlayed,
+      TA: Number(TA || 0),
+      table: activeTable
     };
     onAdd(guest);
     // reset
     setGuestName("");
+    setCn("");
     setCo("");
     setGroup("");
     setTimePlayed("");
     setCredits(days.map(() => 0));
     setTwofour(0);
     setThreeSix(0);
+    setTA(0);
   };
 
   const updateCredit = (index, val) => {
     const copy = [...credits];
-    copy[index] = val;
+    copy[index] = val === "" ? "" : Number(val);
     setCredits(copy);
   };
 
@@ -76,15 +81,30 @@ export default function GuestForm({ onAdd, days, setDays }) {
         <div className="mb-2 d-flex gap-2">
           <input
             className="form-control"
+            placeholder="C.N"
+            value={cn}
+            onChange={(e) => setCn(e.target.value)}
+          />
+          <input
+            className="form-control"
             placeholder="C/O"
             value={co}
             onChange={(e) => setCo(e.target.value)}
           />
+        </div>
+
+        <div className="mb-2 d-flex gap-2">
           <input
             className="form-control"
             placeholder="Group"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
+          />
+          <input
+            className="form-control"
+            placeholder="Time Played (eg 2:00-4:30 PM)"
+            value={timePlayed}
+            onChange={(e) => setTimePlayed(e.target.value)}
           />
         </div>
 
@@ -102,6 +122,18 @@ export default function GuestForm({ onAdd, days, setDays }) {
                 />
               </div>
             ))}
+            <div style={{ minWidth: 110 }}>
+              <div className="small-muted">&nbsp;</div>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() =>
+                  setDays((prev) => [...prev, `Day-${prev.length + 1}`])
+                }
+              >
+                + Add Day
+              </button>
+            </div>
           </div>
         </div>
 
@@ -120,9 +152,9 @@ export default function GuestForm({ onAdd, days, setDays }) {
           />
           <input
             className="form-control"
-            placeholder="Time Played (eg 2:00-4:30 PM)"
-            value={timePlayed}
-            onChange={(e) => setTimePlayed(e.target.value)}
+            placeholder="T.A (Time Allowance)"
+            value={TA}
+            onChange={(e) => setTA(e.target.value)}
           />
         </div>
 
@@ -150,6 +182,12 @@ export default function GuestForm({ onAdd, days, setDays }) {
               }
             />
           ))}
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => setDays((prev) => [...prev, `Day-${prev.length + 1}`])}
+          >
+            + Day
+          </button>
         </div>
         <div className="small-muted mt-2">Change day labels to match your date range.</div>
       </div>

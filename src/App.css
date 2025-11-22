@@ -36,3 +36,29 @@
     transform: rotate(360deg);
   }
 }
+
+
+body {
+  background: #f8f9fa;
+}
+.small-muted {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+.table-casino th,
+.table-casino td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.45rem;
+}
+.table-casino td.cell-net,
+.table-casino tfoot td.cell-subtotal {
+  font-weight: 600;
+}
+.neg {
+  color: red;
+  font-weight: 700;
+}
+.card {
+  border-radius: 0.5rem;
+}

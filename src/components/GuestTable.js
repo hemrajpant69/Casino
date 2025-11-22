@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function GuestTable({ guests, days, onUpdate, onDelete }) {
+export default function GuestTable({ guests, days, onUpdate, onDelete, showGuestNameInAction }) {
   const [expandedId, setExpandedId] = useState(null);
 
   const totals = guests.reduce(
@@ -32,8 +32,9 @@ export default function GuestTable({ guests, days, onUpdate, onDelete }) {
               <th>2/4-N</th>
               <th>3/6-Z</th>
               <th>TOT-HR</th>
+              <th>TA</th>
               <th>NET TOTAL</th>
-              <th style={{ width: 120 }}>ACTION</th>
+              <th style={{ width: 130 }}>ACTION</th>
             </tr>
           </thead>
 
@@ -47,19 +48,18 @@ export default function GuestTable({ guests, days, onUpdate, onDelete }) {
             )}
 
             {guests.map((g, idx) => {
-              // compute net total: total + (maybe add hours based value?) -- as example net=total
-              const net = Number(g.total || 0);
+              const net = Number(g.total || 0) + Number(g.TA || 0);
               const totHr = Number(g["2/4-N"] || 0) + Number(g["3/6-Z"] || 0);
               return (
                 <tr key={g.id}>
-                  <td>{idx + 1}</td>
-                  <td>{g.guestName}</td>
+                  <td>{g.cn}</td>
+                  <td style={{ textAlign: "left" }}>{g.guestName}</td>
                   <td>{g.co}</td>
                   <td>{g.group}</td>
                   <td style={{ textAlign: "right" }}>{g.total}</td>
 
                   {g.days.map((dd, i) => (
-                    <td key={i} style={{ textAlign: "right" }}>
+                    <td key={i} style={{ textAlign: "right" }} className={dd.credit < 0 ? "neg" : ""}>
                       {dd.credit}
                     </td>
                   ))}
@@ -67,6 +67,7 @@ export default function GuestTable({ guests, days, onUpdate, onDelete }) {
                   <td style={{ textAlign: "right" }}>{g["2/4-N"]}</td>
                   <td style={{ textAlign: "right" }}>{g["3/6-Z"]}</td>
                   <td style={{ textAlign: "right" }}>{totHr}</td>
+                  <td style={{ textAlign: "right" }}>{g.TA || 0}</td>
                   <td style={{ textAlign: "right" }} className="cell-net">
                     {net}
                   </td>
@@ -79,6 +80,16 @@ export default function GuestTable({ guests, days, onUpdate, onDelete }) {
                       >
                         View
                       </button>
+
+                      {showGuestNameInAction ? (
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => alert(`Guest: ${g.guestName}\nCN: ${g.cn}`)}
+                        >
+                          {g.guestName}
+                        </button>
+                      ) : null}
+
                       <button className="btn btn-sm btn-danger" onClick={() => onDelete(g.id)}>
                         Delete
                       </button>
